@@ -497,3 +497,49 @@ curl -X POST -H "Content-Type: application/json"   -d '{
 ### Response
 Output: [[0,0],[[0.99314135,0.006858647],[0.9728105,0.027189493]]]                                                         `
 ```
+### Kubeflow
+Install `kubeflow 1.10` from link `https://github.com/kubeflow/manifests/tree/v1.10-branch`
+After install. Login with user `user@example.com/12341234`
+![Kubeflow Dashboard](images/kubeflow_dashboard.png)
+
+#### Build serving image
+Build custom image seving kserve with onnx: 
+```bash
+cd deployment/kserve
+docker build -t tunm10/kserve-diabete:0.0.1 .
+```
+Run command check:
+```bash
+docker run -d --name kserve-serving -p 8080:8080 \
+    tunm10/kserve-diabete:0.0.1
+```
+![Kserve diabete Serving](images/kserve_diabete_serving.png)
+Test: 
+```bash
+curl -X POST -H "Content-Type: application/json"   -d '{
+        "input_data": [
+            [6,103,66,0,0,24.3,0.249,29],
+            [3,89,74,16,85,30.4,0.551,38]
+        ]
+      }'   http://localhost:8080/v1/models/diabetest-model:predict
+## Output: 
+[[0, 0], [[0.9931413531303406, 0.006858646869659424], [0.9728105068206787, 0.02718949317932129]]](
+```
+Apply to cluster K8s: `k apply -f deployment/kserve/diabete_classification.yaml -n kubeflow-user-example-com`
+
+Check service ready with kserve on kubeflow dashboard. 
+![Kserve](images/kserve_diabete_serving.png)
+
+Run test: 
+```bash
+Export NodePort service and run 
+curl -X POST -H "Content-Type: application/json"   -d '{
+        "input_data": [
+            [6,103,66,0,0,24.3,0.249,29],
+            [3,89,74,16,85,30.4,0.551,38]
+        ]
+      }'   http://<ip>:<nodeport>/v1/models/diabetest-model:predict
+# Output
+[[0, 0], [[0.9931413531303406, 0.006858646869659424], [0.9728105068206787, 0.02718949317932129]]]
+```
+

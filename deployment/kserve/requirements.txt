@@ -1,0 +1,6 @@
+onnx==1.19.1
+onnxmltools==1.14.0
+onnxruntime==1.19.2
+joblib==1.5.3
+scikit-learn==1.6.1
+kserve==0.15.0

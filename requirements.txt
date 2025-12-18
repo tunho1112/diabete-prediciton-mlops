@@ -56,3 +56,5 @@ onnxruntime==1.24.4
 tritonclient==1.24.4
 # kserve
 kserve==0.15.0
+# kubeflow 
+pip install kfp==2.15.0

@@ -543,3 +543,20 @@ curl -X POST -H "Content-Type: application/json"   -d '{
 [[0, 0], [[0.9931413531303406, 0.006858646869659424], [0.9728105068206787, 0.02718949317932129]]]
 ```
 
+##### Kubeflow Pipeline for training
+kind create cluster \
+  --name mle \
+  --config kind_1.32.yaml
+
+kind get clusters
+kubectl config use-context kind-k8s-132
+
+export PIPELINE_VERSION=2.15.0
+kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/cluster-scoped-resources?ref=$PIPELINE_VERSION"
+kubectl wait --for condition=established --timeout=60s crd/applications.app.k8s.io
+kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/env/dev?ref=$PIPELINE_VERSION"
+
+
+
+kubectl port-forward --address 0.0.0.0
+ -n kubeflow svc/ml-pipeline-ui 8080:80

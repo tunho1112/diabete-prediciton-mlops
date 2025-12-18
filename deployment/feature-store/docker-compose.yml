@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  online-store:
+    # Set wal_level from replica (default) to logical
+    # so that Debezium can capture change
+    image: redis:8.4.0
+    container_name: redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s         # Check every 30 seconds
+      retries: 3            # Retry 3 times before marking as unhealthy
+      start_period: 10s     # Wait 10 seconds after starting before performing the first check
+      timeout: 5s  
+    ports:
+      - "6379:6379"
+    environment:
+      - POSTGRES_DB=k6
+      - POSTGRES_USER=k6
+      - POSTGRES_PASSWORD=k6
+    volumes: 
+      - redis_data:/data
+
+volumes:
+  redis_data:

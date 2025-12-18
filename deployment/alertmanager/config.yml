@@ -1,0 +1,18 @@
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 5m
+  receiver: discord
+
+receivers:
+- name: discord
+  webhook_configs:
+  - url: 'https://discord.com/api/webhooks/1449404485142056994/TRgvGYD1tM1fLXOxj21N4Rsc5UsZGYAcImteMbj6Qdn2L2TZt58p23tvSP1o9HSCt-1O'
+    http_config:
+      follow_redirects: true
+    send_resolved: true
+    # Note: Alertmanager sends Prometheus alert format by default
+    # Discord webhooks need {"content": "message"} format
+    # This will send the alert JSON - Discord may show it as raw JSON
+    # For better formatting, consider using a webhook proxy or custom receiver

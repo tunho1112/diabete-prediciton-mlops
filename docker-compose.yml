@@ -1,0 +1,16 @@
+version: '3.3'
+services:
+  serving:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: serving-local
+    ports:
+      - "8080:8080"
+      - "8099:8099"
+    restart: unless-stopped
+
+    # command: ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
+    # volumes:
+    #   - ./models:/app/models
+    #   - ./src:/app/src

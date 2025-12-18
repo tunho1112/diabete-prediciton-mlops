@@ -1,0 +1,12 @@
+name: "xgb"
+platform: "onnxruntime_onnx"
+max_batch_size: 128
+input [
+  {
+    name: "input_data"
+    data_type: TYPE_FP32
+    dims: [ 8 ]  # This should match the number of features in your model (8 in this case)
+ 
+  }
+]
+

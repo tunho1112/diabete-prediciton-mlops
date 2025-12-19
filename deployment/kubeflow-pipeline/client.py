@@ -35,7 +35,7 @@ def data_preparation(
 
 @dsl.component(
     base_image='python:3.9',
-    packages_to_install=['pandas==1.3.5', 'scikit-learn==1.0.2'])
+    packages_to_install=['pandas', 'scikit-learn'])
 def normalize_dataset(
     diabete_dataset: Input[Dataset],
     normalized_diabete_dataset_train: Output[Dataset],
@@ -65,21 +65,22 @@ def normalize_dataset(
     X_test = scaler.transform(X_test)
 
     with open(normalized_diabete_dataset_train.path, 'w') as f:
-        X_train.to_csv(f)
+        pd.DataFrame(X_train).to_csv(f, index=False)
     with open(diabete_label_train.path, 'w') as f:
-        y_train.to_csv(f)
+        pd.DataFrame(y_train).to_csv(f, index=False)
     with open(normalized_diabete_dataset_test.path, 'w') as f:
-        X_test.to_csv(f)
+       pd.DataFrame(X_test).to_csv(f, index=False)
     with open(diabete_label_test.path, 'w') as f:
-        y_test.to_csv(f)
+        pd.DataFrame(y_test).to_csv(f, index=False)
 
-@dsl.component(packages_to_install=['pandas==1.3.5', 'scikit-learn==1.0.2', 'xgboost==1.5.0', 'mlflow==2.22.1'])
+@dsl.component(
+    base_image="python:3.9",
+    packages_to_install=['pandas', 'scikit-learn', 'xgboost', 'mlflow==2.22.1'])
 def train_model(
     normalized_diabete_dataset_train: Input[Dataset],
     diabete_label_train: Input[Dataset],
     normalized_diabete_dataset_test: Input[Dataset],
     diabete_label_test: Input[Dataset],
-    model: Output[Model],
     mlflow_uri: str = "http://10.24.1.39:5000", 
     experiment_name: str = "diabetes_model" 
 ):
@@ -135,16 +136,20 @@ def train_model(
         registered_model_name="xgb_diabetes_model"  # Register to Model Registry
     )
     mlflow.end_run()
+    print("Done")
 
 @dsl.pipeline
-def my_pipeline():
+def my_pipeline(
+    mlflow_uri: str, 
+    experiment_name: str
+):
     data_preparation_task = data_preparation()
-    normalized_data_task  = normalize_dataset(data_preparation_task.outputs['diabete_dataset'])
+    normalized_data_task  = normalize_dataset(diabete_dataset=data_preparation_task.outputs['diabete_dataset'])
     train_model_task = train_model(
-        normalized_data_task.outputs['normalized_diabete_dataset_train'],
-        normalized_data_task.outputs['diabete_label_train'],
-        normalized_data_task.outputs['normalized_diabete_dataset_test'],
-        normalized_data_task.outputs['diabete_label_test'],
+        normalized_diabete_dataset_train= normalized_data_task.outputs['normalized_diabete_dataset_train'],
+        diabete_label_train = normalized_data_task.outputs['diabete_label_train'],
+        normalized_diabete_dataset_test=normalized_data_task.outputs['normalized_diabete_dataset_test'],
+        diabete_label_test=normalized_data_task.outputs['diabete_label_test'],
     )
     
 

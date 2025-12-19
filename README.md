@@ -543,20 +543,35 @@ curl -X POST -H "Content-Type: application/json"   -d '{
 [[0, 0], [[0.9931413531303406, 0.006858646869659424], [0.9728105068206787, 0.02718949317932129]]]
 ```
 
-##### Kubeflow Pipeline for training
-kind create cluster \
-  --name mle \
-  --config kind_1.32.yaml
-
-kind get clusters
-kubectl config use-context kind-k8s-132
-
+#### Kubeflow Pipeline for training
+Install Kubeflow Pipeline:
+```bash
+# Run service kubeflow-pipeline
 export PIPELINE_VERSION=2.15.0
 kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/cluster-scoped-resources?ref=$PIPELINE_VERSION"
 kubectl wait --for condition=established --timeout=60s crd/applications.app.k8s.io
 kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/env/dev?ref=$PIPELINE_VERSION"
+# Export this command
+kubectl port-forward --address 0.0.0.0 -n kubeflow svc/ml-pipeline-ui 8080:80
+```
+![kubeflow-pipeline](images/kubeflow-pipeline.png)
 
-
-
-kubectl port-forward --address 0.0.0.0
- -n kubeflow svc/ml-pipeline-ui 8080:80
+Run pipline kubeflow get data from data source, training model and push model to model registry: 
+```bash
+cd deployment/kubeflow-pipeline
+python client.py
+```
+Run comand to push pipeline to kubeflow pipeline: 
+```bash
+python ./client.py
+# OUtput
+/home/os_sysadmin/miniconda3/envs/dl/lib/python3.9/site-packages/kfp/client/client.py:159: FutureWarning: This client only works with Kubeflow Pipeline v2.0.0-beta.2 and later versions.
+  warnings.warn(
+Experiment details: http://10.24.1.39:8080/#/experiments/details/2f21e99a-527e-4c71-8760-42442fab6ae9
+Run details: http://10.24.1.39:8080/#/runs/details/d4a92de1-816a-4ef4-aa8d-0536e8886715
+```
+![dashboard running pipeline](images/running_pipline.png)
+Check pipeline run: 
+![pipeline done](images/pipeline_flow.png)
+After pipline done, output model save to mlflow registry:
+![model](images/mlflow_model.png)

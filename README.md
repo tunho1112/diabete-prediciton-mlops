@@ -542,6 +542,54 @@ curl -X POST -H "Content-Type: application/json"   -d '{
 # Output
 [[0, 0], [[0.9931413531303406, 0.006858646869659424], [0.9728105068206787, 0.02718949317932129]]]
 ```
+#### Knative eventing 
+Install Knative version 1.18.0: 
+```bash
+kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.18.0/eventing-crds.yaml
+kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.18.0/eventing-core.yaml
+kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.18.0/in-memory-channel.yaml
+kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.18.0/mt-channel-broker.yaml
+```
+
+Apply Service: 
+```bash
+cd diabete-prediciton-mlops/deployment/knative
+k create -n eventing-test
+kubens eventing-test
+k apply -f role.yaml
+k apply -f broker.yaml 
+# apply service classifier
+k apply -f diabete-classifier.yaml 
+k apply -f trigger.yaml 
+k apply -f event-display.yaml
+```
+Test service: 
+```bash
+# Expose istio gateway with port-forward
+INGRESS_GATEWAY_SERVICE=$(kubectl get svc --namespace istio-system --selector="app=istio-ingressgateway" --output jsonpath='{.items[0].metadata.name}')
+kubectl port-forward --namespace istio-system svc/${INGRESS_GATEWAY_SERVICE} 8081:80
+# run test
+python classifier_utils.py
+```
+Output:
+![Knative-eventing](images/knative_logging.png)
+
+##### Create a custom anomaly detection service to check for data drift:
+```bash
+cd diabete-prediciton-mlops/deployment/knative-eventing/my_logging
+docker build -t mle_logging_endpoint:0.02 .
+docker tag mle_logging_endpoint:0.2 tunm10/mle_logging_endpoint:0.02
+docker push tunm10/mle_logging_endpoint:0.02
+k apply -f deployment.py
+```
+Run test: 
+```bash
+python diabete-prediciton-mlops/deployment/knative-eventing/classifier_utils.py
+```
+Output: 
+
+![Detect-drift](images/detect_drift.png)
+
 
 #### Kubeflow Pipeline for training
 Install Kubeflow Pipeline:

@@ -1,0 +1,21 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: knative-eventing-inmemorychannel-access
+rules:
+- apiGroups: ["messaging.knative.dev"]
+  resources: ["inmemorychannels"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: knative-eventing-inmemorychannel-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: knative-eventing-inmemorychannel-access
+subjects:
+- kind: ServiceAccount
+  name: eventing-controller
+  namespace: knative-eventing

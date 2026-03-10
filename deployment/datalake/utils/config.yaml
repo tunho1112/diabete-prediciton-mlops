@@ -1,0 +1,10 @@
+data:
+  folder_path: deployment/datalake/data
+  num_files: 2
+
+datalake:
+  endpoint: localhost:9000
+  bucket_name: diabetes-data
+  folder_name: pump
+  access_key: minio_access_key
+  secret_key: minio_secret_key

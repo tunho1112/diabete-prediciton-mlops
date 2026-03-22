@@ -1,7 +1,7 @@
 # 🚀 Builde MLOPs for Prediction ML System
 This project aims to build a full MLOps pipeline for a machine learning prediction system, focusing on diabetes prediction. It covers the steps from data processing, model training, evaluation, and deployment, to automating workflows with best practices. The goal is to demonstrate a robust, reproducible, and scalable approach to operationalizing ML models in production environments.
 
-![](images/overview_architecture_v2.png)
+![](images/overview_architecture_v3.png)
 
 ## 📑 Table of Contents
 - [📊 Dataset](#-dataset)
